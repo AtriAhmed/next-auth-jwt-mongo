@@ -9,7 +9,7 @@ const ProtectedRoute = ({ children, accessId }) => {
 
     useEffect(() => {
         if (status != "loading") {
-            if (!session || session.user.accessId < accessId) {
+            if (!session || session?.user?.accessId < accessId) {
                 // Redirect the user if not authenticated or doesn't have admin role
                 router.push('/'); // Replace '/login' with the desired redirect path
             }else{

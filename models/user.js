@@ -1,43 +1,16 @@
-'use strict';
-const {
-  Model
-} = require('sequelize');
-import { sequelize } from './'
-import { DataTypes } from 'sequelize'
+import mongoose, { Schema } from "mongoose";
 
-const AccessLevel = require('./accesslevel')(sequelize, DataTypes)
-module.exports = (sequelize, DataTypes) => {
-  class User extends Model {
-    /**
-     * Helper method for defining associations.
-     * This method is not a part of Sequelize lifecycle.
-     * The `models/index` file will call this method automatically.
-     */
-    static associate(models) {
-      // define association here
-    }
-  }
-  User.init({
-    accessId: {
-      type: DataTypes.INTEGER,
-      allowNull: false,
-      references: {
-        model: AccessLevel,
-        key: 'permissionLevel'
-      }
-    },
-    name: DataTypes.STRING,
-    email: DataTypes.STRING,
-    email_verified: DataTypes.BOOLEAN,
-    image: DataTypes.STRING,
-    password: DataTypes.STRING
-  }, {
-    sequelize,
-    modelName: 'User',
-    tableName: 'users'
-  });
+const UserSchema = new mongoose.Schema({
+    accessId: { type: Schema.Types.ObjectId, ref: "AccessId" },
+    name: String,
+    email: String,
+    email_verified: Boolean,
+    image: String,
+    password: String,
+  createdAt: {
+    type: Number,
+    default: Date.now,
+  },
+});
 
-  User.belongsTo(AccessLevel, { foreignKey: 'accessId' });
-  //User.sync({ alter: true })
-  return User;
-};
+module.exports = mongoose.models.User || mongoose.model("User", UserSchema);

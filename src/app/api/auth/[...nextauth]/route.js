@@ -1,11 +1,8 @@
 import NextAuth from "next-auth";
-import SequelizeAdapter from "@auth/sequelize-adapter";
-import { sequelize } from '../../../../../models'
-import { DataTypes } from 'sequelize'
 import CredentialsProvider from "next-auth/providers/credentials"
 import jwt from 'jsonwebtoken';
-
-const User = require('../../../../../models/user')(sequelize, DataTypes)
+import User from "../../../../../models/User";
+import dbConnect from "../../../../../lib/dbConnect";
 
 const authOptions =  {providers: [
     CredentialsProvider({
@@ -17,9 +14,10 @@ const authOptions =  {providers: [
             password: { label: "Password", type: "password" }
         },
         authorize: async (credentials) => {
+            await dbConnect();
             // Here you would implement your own logic to check if the credentials are valid
             const { email, password } = credentials;
-            const user = await User.findOne({ where: { email } });
+            const user = await User.findOne({ email });
             if (user && user.password === password) {
                 // Return the user object if the credentials are valid
                 return user;
@@ -31,7 +29,6 @@ const authOptions =  {providers: [
         }
     })
 ],
-adapter: SequelizeAdapter(sequelize),
 secret: process.env.NEXT_AUTH_SECRET,
 session: {
     // Choose how you want to save the user session.
@@ -60,8 +57,9 @@ callbacks: {
 },
 jwt:{
 encode: async ({ secret, token}) => {
+    await dbConnect();
     // Fetch user data from the database using Sequelize
-    const user = await User.findOne({ where: { email: token.email } });
+    const user = await User.findOne( { email: token.email });
 
     // Include additional user data in the token
     const payload = {
@@ -77,10 +75,11 @@ encode: async ({ secret, token}) => {
     return encodedToken;
   },
   decode: async ({ secret, token }) => {
+      await dbConnect();
     // Decode the token using your custom decode function
     const decodedToken = jwt.verify(token, secret);
     // Fetch user data from the database using Sequelize
-    const user = await User.findOne({ where: { id: decodedToken.userId } });
+    const user = await User.findById(decodedToken.userId);
 
     // Include additional user data in the session object
     const session = {

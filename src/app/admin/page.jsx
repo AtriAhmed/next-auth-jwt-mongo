@@ -5,14 +5,8 @@ import { useSession } from 'next-auth/react'
 
 export default function AdminDashboard() {
     const { data: session, status } = useSession({})
-const [loading, setLoading] = useState(true)
+    if (status == "loading") return "Loading";
 
-useEffect(()=>{
-if(session)
-if(session.user) setLoading(false)
-},[status])
-
-if(loading) return <div>LOADING...</div>
     return (
         <ProtectedRoute accessId={2}>
             <div className=''>admin dashboard</div>
