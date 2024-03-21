@@ -3,6 +3,7 @@ import CredentialsProvider from "next-auth/providers/credentials"
 import jwt from 'jsonwebtoken';
 import User from "../../../../../models/User";
 import dbConnect from "../../../../../lib/dbConnect";
+import bcrypt from "bcrypt"
 
 const authOptions =  {providers: [
     CredentialsProvider({
@@ -18,14 +19,9 @@ const authOptions =  {providers: [
             // Here you would implement your own logic to check if the credentials are valid
             const { email, password } = credentials;
             const user = await User.findOne({ email });
-            if (user && user.password === password) {
-                // Return the user object if the credentials are valid
-                return user;
-            } else {
-                // Return null if the credentials are invalid
-                return null;
-            }
-            
+            const passwordMatch = await bcrypt.compare(password, user.password);
+            if(passwordMatch) return user
+            else return null;
         }
     })
 ],

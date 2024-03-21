@@ -16,7 +16,7 @@ export default function LoginForm() {
     const [error, setError] = useState("");
 
     const searchParams = useSearchParams();
-    const callbackUrl = searchParams.get("callbackUrl") || "/profile";
+    const callbackUrl = searchParams.get("callbackUrl") || "/";
 
     const onSubmit = async (e) => {
         e.preventDefault();
@@ -31,11 +31,11 @@ export default function LoginForm() {
                 callbackUrl,
             });
 
-            setLoading(false);
-
+            
             if (!res?.error) {
                 router.push(callbackUrl);
             } else {
+                setLoading(false);
                 setError("invalid email or password");
             }
         } catch (error) {
@@ -88,6 +88,7 @@ export default function LoginForm() {
             >
                 {loading ? "loading..." : "Sign In"}
             </button>
+            <Link href="/auth/forgot-password">Forgot password ?</Link>
 
             <div className="border-t justify-center pt-4 items-center flex gap-4 w-full">
                 or <Link
